@@ -1,7 +1,7 @@
 import React from "react"
 import ReactTable from "react-table"
 
-export default class Dashboard extends React.Component {
+export default class EmailDashboard extends React.Component {
   constructor(props, context) {
     super(props, context)
   }
@@ -9,7 +9,7 @@ export default class Dashboard extends React.Component {
   render() {
     return (
       <div>
-        <h1>Dashboard</h1>
+        <h1>Emails</h1>
       </div>
     )
   }

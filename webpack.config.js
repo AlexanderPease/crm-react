@@ -34,7 +34,10 @@ const config = {
     },
     devServer: {
         contentBase: __dirname,
-        publicPath: '/dist/'
+        publicPath: '/dist/',
+        historyApiFallback: {
+            index: 'index.html'  // Serve index.html for all URLs
+        }
     },
 };
 
