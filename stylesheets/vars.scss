@@ -1,0 +1,38 @@
+// Colors
+$green: #51A669;
+$dark-green: #346D44;
+$blue: #124559;
+$gray: #999999;
+$light-gray: #F2F2F2;
+$black: #000000;
+$white: #FFFFFF;
+$red: #D33F49; 
+$shadow: rgba($black, 0.2);
+$green-background: rgba($green, 0.2);
+$red-background: rgba($red, 0.2);
+$blue-background: rgba($blue, 0.2);
+
+
+// Fonts
+$font-family: Helvetica;
+$title-large: 48px;
+$title-medium: 36px;
+$title-mobile: 30px;
+$title-small: 24px;
+$text-large: 18px;
+$text: 14px;
+$text-small: 11px;
+
+// Layout
+$width-sm: 768px;
+$width-md: 992px;
+$width-lg: 1200px;
+
+$max-width-sm: $width-sm - 1;
+$min-width-sm: $width-sm; // alias
+
+$max-width-md: $width-md - 1;
+$min-width-md: $width-md; // alias
+
+$max-width-lg: $width-lg - 1;
+$min-width-lg: $width-lg; // alias

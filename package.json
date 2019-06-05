@@ -1,0 +1,43 @@
+{
+  "name": "react-crm",
+  "version": "1.0.0",
+  "description": "Frontend for personal CRM",
+  "main": "javascripts/index.jsx",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack -p --progress --config webpack.config.js",
+    "watch": "webpack --progress -d --config webpack.config.js --watch",
+    "start": "webpack-dev-server --open 'Google Chrome'"
+  },
+  "author": "Zander Pease",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/core": "7.4.5",
+    "@babel/preset-env": "7.4.5",
+    "@babel/preset-react": "7.0.0",
+    "babel-loader": "8.0.6",
+    "bootstrap": "4.3.1",
+    "css-loader": "2.1.1",
+    "extract-text-webpack-plugin": "4.0.0-beta.0",
+    "node-sass": "4.12.0",
+    "react": "16.8.6",
+    "react-bootstrap": "1.0.0-beta.9",
+    "react-dom": "16.8.6",
+    "react-router": "5.0.0",
+    "react-router-dom": "5.0.0",
+    "react-table": "6.10.0",
+    "sass-loader": "7.1.0",
+    "style-loader": "0.23.1",
+    "webpack": "4.17.1"
+  },
+  "devDependencies": {
+    "webpack-cli": "3.3.2",
+    "webpack-dev-server": "3.5.1"
+  },
+  "babel": {
+    "presets": [
+      "@babel/env",
+      "@babel/react"
+    ]
+  }
+}
