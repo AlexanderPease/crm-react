@@ -12,6 +12,7 @@ import Header from "./components/header"
 // import Footer from "./footer"
 import Dashboard from "./containers/dashboard"
 import EmailDashboard from "./containers/emails"
+import { paths } from  "./lib/constants"
 
 export default class App extends React.Component {
   constructor(props, context) {
@@ -30,7 +31,7 @@ export default class App extends React.Component {
               render={ (props) => <Dashboard {...props} />}
             />
             <Route
-              path='/email-address'
+              path={paths.emailAddressDashboard}
               component={EmailDashboard}
             />
           </Switch>

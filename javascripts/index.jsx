@@ -6,6 +6,7 @@ import Bootstrap from 'bootstrap/dist/css/bootstrap.css'
 import App from "./app"
 
 require('../stylesheets/index.scss')
+import "react-table/react-table.css"
 
 ReactDOM.render(
   (
