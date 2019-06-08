@@ -11,13 +11,41 @@ export default class Dashboard extends React.Component {
 
     this.get = this.get.bind(this)
 
+    this.toggleRow = this.toggleRow.bind(this)
+    this.toggleSelectAll = this.toggleSelectAll.bind(this)
+
     this.state = {
-      'data': []
+      'data': this.get(),
+      selected: {},
+      selectAll: 0
     }
   }
 
-  componentDidMount() {
-    this.get()
+  toggleRow(id) {
+    console.log('toggleRow')
+    console.log(id)
+    const newSelected = Object.assign({}, this.state.selected)
+    newSelected[id] = !this.state.selected[id]
+    this.setState({
+      selected: newSelected,
+      selectAll: 2
+    });
+  }
+
+  toggleSelectAll() {
+    console.log('toggleSelectAll')
+    let newSelected = {};
+
+    if (this.state.selectAll === 0) {
+      this.state.data.forEach(x => {
+        newSelected[x.id] = true
+      });
+    }
+
+    this.setState({
+      selected: newSelected,
+      selectAll: this.state.selectAll === 0 ? 1 : 0
+    });
   }
 
   // GET
@@ -46,10 +74,43 @@ export default class Dashboard extends React.Component {
   render() {
     const columns = [
       {
+        id: "checkbox",
+        accessor: "",
+        Header: x => {
+          return (
+            <input
+              type="checkbox"
+              className="checkbox"
+              checked={this.state.selectAll === 1}
+              ref={input => {
+                if (input) {
+                  input.indeterminate = this.state.selectAll === 2;
+                }
+              }}
+              onChange={() => this.toggleSelectAll()}
+            />
+          )
+        },
+        Cell: ({ original }) => {
+          return (
+            <input
+              type="checkbox"
+              className="checkbox"
+              checked={this.state.selected[original.id] === true}
+              onChange={() => this.toggleRow(original.id)}
+            />
+          );
+        },
+        sortable: false,
+        width: 40,
+        filterable: false
+      },
+      {
         Header: 'Name',
         accessor: 'name',
+        minWidth: 200,
         filterMethod: (filter, rows) => matchSorter(rows, filter.value, { keys: ["name"] }),
-        filterAll: true
+        filterAll: true,
       },
       {
         Header: 'Emails',
@@ -57,6 +118,7 @@ export default class Dashboard extends React.Component {
         Cell: row => (
           <div>{row.original.email_addresses.map(e => e.email_address)}</div>
         ),
+        minWidth: 200,
         filterMethod: (filter, rows) => matchSorter(
           rows,
           filter.value,
@@ -86,7 +148,8 @@ export default class Dashboard extends React.Component {
       {
         Header: 'To',
         accessor: 'to_count',
-        filterable: false
+        filterable: false,
+        maxWidth: 70
       },
             {
         Header: 'Latest To',
@@ -96,7 +159,8 @@ export default class Dashboard extends React.Component {
       {
         Header: 'From',
         accessor: 'from_count',
-        filterable: false
+        filterable: false,
+        maxWidth: 70
       },
             {
         Header: 'Latest From',
