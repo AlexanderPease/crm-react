@@ -24,17 +24,19 @@ export default class App extends React.Component {
       <Router>
         <Header />
         <div className="wrapper">
-          <Switch>
-            <Route
-              path='/'
-              exact={true}
-              render={ (props) => <Dashboard {...props} />}
-            />
-            <Route
-              path={paths.emailAddressDashboard}
-              component={EmailDashboard}
-            />
-          </Switch>
+          <div className="container">
+            <Switch>
+              <Route
+                path='/'
+                exact={true}
+                render={ (props) => <Dashboard {...props} />}
+              />
+              <Route
+                path={paths.emailAddressDashboard}
+                component={EmailDashboard}
+              />
+            </Switch>
+          </div>
         </div>
       </Router>
     );

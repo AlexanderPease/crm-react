@@ -52,10 +52,6 @@ export default class EmailDashboard extends React.Component {
         accessor: 'name'
       },
       {
-        Header: 'Total',
-        accessor: 'total'
-      },
-      {
         Header: 'To',
         accessor: 'to_count'
       },
@@ -76,7 +72,17 @@ export default class EmailDashboard extends React.Component {
     return (
       <div>
         <h1>Emails</h1>
-        <ReactTable data={this.state.emails} columns={columns} />
+        <ReactTable
+          data={this.state.emails}
+          columns={columns}
+          className="-striped"
+          defaultSorted={[
+            {
+              id: "email_address",
+              desc: false
+            }
+          ]}
+        />
       </div>
     )
   }

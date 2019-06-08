@@ -9,6 +9,9 @@ const Header = () => {
   return (
     <header>
       <div className='o-container o-container--full clearfix'>
+        <NavLink to={paths.contact}>
+          Contacts
+        </NavLink>
         <NavLink to={paths.emailAddressDashboard}>
           Email Addresses
         </NavLink>
