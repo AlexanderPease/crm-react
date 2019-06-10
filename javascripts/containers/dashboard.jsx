@@ -22,10 +22,11 @@ export default class Dashboard extends React.Component {
     this.mergeContacts = this.mergeContacts.bind(this)
 
     this.state = {
-      data: this.get(),
+      data: [],
       selected: {},
       selectAll: 0
     }
+    this.get()
   }
 
   selectedIds() {
@@ -72,6 +73,7 @@ export default class Dashboard extends React.Component {
     fetch(
       apiBaseUrl + paths.contact,
       { method: "GET" }
+
     )
     .then(resp => {
       if (resp.status == 200) {
@@ -91,19 +93,18 @@ export default class Dashboard extends React.Component {
   }
 
   put(contact_id, data) {
-    console.log('put')
-    console.log(contact_id)
-    console.log(data)
     fetch(
       apiBaseUrl + paths.contact + "/" + contact_id,
       { 
         method: "PUT",
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(data)
       }
     )
     .then(resp => {
       if (resp.status == 200) {
-        console.log('success')
         this.get()
       } else if (resp.status == 401) {
         throw new Error('Unauthorized to access.')
@@ -118,7 +119,6 @@ export default class Dashboard extends React.Component {
 
   // Merge contacts together
   mergeContacts() {
-    console.log('merge contacts')
     const ids = this.selectedIds()
     if (ids.length != 2) { return }
     let data = { 'merge': ids[1] }
@@ -174,7 +174,7 @@ export default class Dashboard extends React.Component {
         Header: 'Emails',
         accessor: 'email_addresses',
         Cell: row => (
-          <div>{row.original.email_addresses.map(e => e.email_address)}</div>
+          <div>{row.original.email_addresses.map(e => e.email_address).join(', ')}</div>
         ),
         minWidth: 200,
         filterMethod: (filter, rows) => matchSorter(
