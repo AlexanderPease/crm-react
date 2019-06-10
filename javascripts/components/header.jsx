@@ -12,9 +12,6 @@ const Header = () => {
         <NavLink to={paths.contact}>
           Contacts
         </NavLink>
-        <NavLink to={paths.emailAddressDashboard}>
-          Email Addresses
-        </NavLink>
       </div>
     </header>
   )

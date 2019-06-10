@@ -1,39 +1,56 @@
 import React from "react"
+import { Button } from "react-bootstrap"
 import ReactTable from "react-table"
 import matchSorter, { rankings } from 'match-sorter'
 
 import { paths, apiBaseUrl } from "../lib/constants"
 import Input from "../components/shared/input"
 
+
 export default class Dashboard extends React.Component {
   constructor(props, context) {
     super(props, context)
 
+    this.selectedIds = this.selectedIds.bind(this)
+
     this.get = this.get.bind(this)
+    this.put = this.put.bind(this)
 
     this.toggleRow = this.toggleRow.bind(this)
     this.toggleSelectAll = this.toggleSelectAll.bind(this)
 
+    this.mergeContacts = this.mergeContacts.bind(this)
+
     this.state = {
-      'data': this.get(),
+      data: this.get(),
       selected: {},
       selectAll: 0
     }
   }
 
+  selectedIds() {
+    let selectedIds = []
+    for (var key in this.state.selected) {
+      if (this.state.selected[key]) {
+       selectedIds.push(key)
+      }
+    }
+    return selectedIds
+  }
+
+  /****************************************************/
+  // Row selection
+  /****************************************************/
   toggleRow(id) {
-    console.log('toggleRow')
-    console.log(id)
     const newSelected = Object.assign({}, this.state.selected)
     newSelected[id] = !this.state.selected[id]
     this.setState({
       selected: newSelected,
       selectAll: 2
-    });
+    })
   }
 
   toggleSelectAll() {
-    console.log('toggleSelectAll')
     let newSelected = {};
 
     if (this.state.selectAll === 0) {
@@ -48,7 +65,9 @@ export default class Dashboard extends React.Component {
     });
   }
 
-  // GET
+  /****************************************************/
+  // Contact API methods
+  /****************************************************/
   get() {
     fetch(
       apiBaseUrl + paths.contact,
@@ -68,9 +87,48 @@ export default class Dashboard extends React.Component {
     })
     .catch(function (error) {
       console.log('Request failed', error);
-    });
+    })
   }
 
+  put(contact_id, data) {
+    console.log('put')
+    console.log(contact_id)
+    console.log(data)
+    fetch(
+      apiBaseUrl + paths.contact + "/" + contact_id,
+      { 
+        method: "PUT",
+        body: JSON.stringify(data)
+      }
+    )
+    .then(resp => {
+      if (resp.status == 200) {
+        console.log('success')
+        this.get()
+      } else if (resp.status == 401) {
+        throw new Error('Unauthorized to access.')
+      } else {
+        throw new Error('Failed to access.')
+      }
+    })
+    .catch(function (error) {
+      console.log('Request failed', error);
+    })
+  }
+
+  // Merge contacts together
+  mergeContacts() {
+    console.log('merge contacts')
+    const ids = this.selectedIds()
+    if (ids.length != 2) { return }
+    let data = { 'merge': ids[1] }
+    this.put(ids[0], data)
+  }
+
+
+  /****************************************************/
+  // Render
+  /****************************************************/
   render() {
     const columns = [
       {
@@ -171,11 +229,18 @@ export default class Dashboard extends React.Component {
 
     return (
       <div>
-        <h1>Contacts</h1>
+        <Button
+          id="mergeButton"
+          variant='primary'
+          disabled={this.selectedIds().length !== 2}
+          onClick={this.mergeContacts}
+        >Merge Contacts</Button>
+
         <ReactTable
           data={this.state.data}
           columns={columns}
           className="-striped"
+          defaultPageSize={10}
           filterable
           defaultSorted={[
             {
