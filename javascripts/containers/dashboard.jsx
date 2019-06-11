@@ -5,6 +5,9 @@ import matchSorter, { rankings } from 'match-sorter'
 
 import { paths, apiBaseUrl } from "../lib/constants"
 import Input from "../components/shared/input"
+import BulkEditModal from "../components/dashboard/BulkEditModal"
+import cleanContacts from "../lib/contacts"
+import dateString from "../lib/date"
 
 
 export default class Dashboard extends React.Component {
@@ -12,6 +15,9 @@ export default class Dashboard extends React.Component {
     super(props, context)
 
     this.selectedIds = this.selectedIds.bind(this)
+    this.renderEditable = this.renderEditable.bind(this)
+    this.saveCell = this.saveCell.bind(this)
+    this.bulkEdit = this.bulkEdit.bind(this)
 
     this.get = this.get.bind(this)
     this.put = this.put.bind(this)
@@ -85,7 +91,10 @@ export default class Dashboard extends React.Component {
       }
     })
     .then((json) => {
-      this.setState({ data: json })
+      return cleanContacts(json)
+    })
+    .then((data) => {
+      this.setState({ data: data })
     })
     .catch(function (error) {
       console.log('Request failed', error);
@@ -123,6 +132,31 @@ export default class Dashboard extends React.Component {
     if (ids.length != 2) { return }
     let data = { 'merge': ids[1] }
     this.put(ids[0], data)
+  }
+
+  saveCell(e) {
+    console.log(e.target.innerHTML)
+  }
+
+  renderEditable(cellInfo) {
+    return (
+      <div
+        style={{ backgroundColor: "#fafafa" }}
+        contentEditable
+        suppressContentEditableWarning
+        onBlur={this.saveCell}
+        dangerouslySetInnerHTML={{
+          __html: this.state.data[cellInfo.index][cellInfo.column.id]
+        }}
+      />
+    )
+  }
+
+  bulkEdit() {
+    const bulkEditModal = BulkEditModal({
+      numContacts: this.selectedIds().length
+    })
+    this.props.toggleShowModal(bulkEditModal)
   }
 
 
@@ -167,7 +201,14 @@ export default class Dashboard extends React.Component {
         Header: 'Name',
         accessor: 'name',
         minWidth: 200,
+        Cell: this.renderEditable,
         filterMethod: (filter, rows) => matchSorter(rows, filter.value, { keys: ["name"] }),
+        filterAll: true,
+      },
+      {
+        Header: 'Company',
+        accessor: 'company',
+        filterMethod: (filter, rows) => matchSorter(rows, filter.value, { keys: ["company"] }),
         filterAll: true,
       },
       {
@@ -212,7 +253,8 @@ export default class Dashboard extends React.Component {
             {
         Header: 'Latest To',
         accessor: 'to_latest',
-        filterable: false
+        filterable: false,
+        Cell: row => <div>{dateString(row.original.to_latest)}</div>
       },
       {
         Header: 'From',
@@ -223,7 +265,8 @@ export default class Dashboard extends React.Component {
             {
         Header: 'Latest From',
         accessor: 'from_latest',
-        filterable: false
+        filterable: false,
+        Cell: row => <div>{dateString(row.original.from_latest)}</div>
       }
     ]
 
@@ -235,6 +278,13 @@ export default class Dashboard extends React.Component {
           disabled={this.selectedIds().length !== 2}
           onClick={this.mergeContacts}
         >Merge Contacts</Button>
+
+        <Button
+          id="mergeButton"
+          variant='primary'
+          disabled={this.selectedIds().length <= 1}
+          onClick={this.bulkEdit}
+        >Bulk Edit</Button>
 
         <ReactTable
           data={this.state.data}
