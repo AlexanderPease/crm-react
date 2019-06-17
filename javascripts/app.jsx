@@ -18,6 +18,7 @@ export default class App extends React.Component {
     super(props, context)
 
     this.toggleShowModal = this.toggleShowModal.bind(this)
+    this.setModalProps = this.setModalProps.bind(this)
 
     this.state = {
       showModal: false,
@@ -26,18 +27,21 @@ export default class App extends React.Component {
   }
 
   // Toggle showing modal
-  toggleShowModal(modalProps) {
-    this.setState({
-      showModal: this.state.showModal ? false : true,
-      modalProps: modalProps
-    })
+  toggleShowModal() {
+    this.setState({ showModal: this.state.showModal ? false : true })
+  }
+
+  // Set modal props
+  setModalProps(modalProps) {
+    this.setState({ modalProps: modalProps })
   }
 
   render () {
 
-    // TODO: Not being passed in....
+    // TODO: Not being passed in by {...props}....
     const props = {
-      toggleShowModal: this.toggleShowModal
+      // toggleShowModal: this.toggleShowModal
+      // modalProps: this.state.modalProps
     }
 
     return (
@@ -48,7 +52,7 @@ export default class App extends React.Component {
               <Route
                 path='/'
                 exact={true}
-                render={ (props) => <Dashboard {...props} toggleShowModal={this.toggleShowModal}/>}
+                render={ (props) => <Dashboard {...props} toggleShowModal={this.toggleShowModal} modalProps={this.state.modalProps} setModalProps={this.setModalProps}/>}
               />
             </Switch>
           </div>

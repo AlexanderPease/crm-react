@@ -17,7 +17,10 @@ export default class Dashboard extends React.Component {
     this.selectedIds = this.selectedIds.bind(this)
     this.renderEditable = this.renderEditable.bind(this)
     this.saveCell = this.saveCell.bind(this)
-    this.bulkEdit = this.bulkEdit.bind(this)
+    this.showBulkEditModal = this.showBulkEditModal.bind(this)
+
+    this.editContacts = this.editContacts.bind(this)
+    this.updateEditState = this.updateEditState.bind(this)
 
     this.get = this.get.bind(this)
     this.put = this.put.bind(this)
@@ -30,7 +33,13 @@ export default class Dashboard extends React.Component {
     this.state = {
       data: [],
       selected: {},
-      selectAll: 0
+      selectAll: 0,
+
+      // Edit contacts
+      edits: {
+        company: '',
+        tags: ''
+      }
     }
     this.get()
   }
@@ -134,6 +143,11 @@ export default class Dashboard extends React.Component {
     this.put(ids[0], data)
   }
 
+  editContacts(data) {
+
+    console.log('editContacts')
+  }
+
   saveCell(e) {
     console.log(e.target.innerHTML)
   }
@@ -152,11 +166,26 @@ export default class Dashboard extends React.Component {
     )
   }
 
-  bulkEdit() {
+  updateEditState(e) {
+    console.log('updateEditState')
+    console.log(e)
+    console.log(e.target.id)
+    console.log(e.target.value)
+    let edits = { ...this.state.edits }
+    edits[e.target.id] = e.target.value
+    console.log(edits)
+    this.setState({ edits: edits })
+  }
+
+  showBulkEditModal() {
     const bulkEditModal = BulkEditModal({
-      numContacts: this.selectedIds().length
+      numContacts: this.selectedIds().length,
+      edits: this.state.edits,
+      onChange: this.updateEditState,
+      onClick: this.editContacts // callback to execute
     })
-    this.props.toggleShowModal(bulkEditModal)
+    this.props.setModalProps(bulkEditModal)
+    this.props.toggleShowModal()
   }
 
 
@@ -272,19 +301,21 @@ export default class Dashboard extends React.Component {
 
     return (
       <div>
-        <Button
-          id="mergeButton"
-          variant='primary'
-          disabled={this.selectedIds().length !== 2}
-          onClick={this.mergeContacts}
-        >Merge Contacts</Button>
+        <div className="dashboard-actions">
+          <Button
+            id="mergeButton"
+            variant='primary'
+            disabled={this.selectedIds().length !== 2}
+            onClick={this.mergeContacts}
+          >Merge Contacts</Button>
 
-        <Button
-          id="mergeButton"
-          variant='primary'
-          disabled={this.selectedIds().length <= 1}
-          onClick={this.bulkEdit}
-        >Bulk Edit</Button>
+          <Button
+            id="mergeButton"
+            variant='primary'
+            disabled={this.selectedIds().length <= 1}
+            onClick={this.showBulkEditModal}
+          >Bulk Edit</Button>
+        </div>
 
         <ReactTable
           data={this.state.data}

@@ -12,10 +12,7 @@ const ReactModal = props => {
       </Modal.Header>
       <Modal.Body>{props.body}</Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={props.toggleShowModal}>
-          Close
-        </Button>
-        <Button variant="primary" onClick={props.toggleShowModal}>
+        <Button variant="primary" onClick={props.onClick}>
           {props.primaryCTA}
         </Button>
       </Modal.Footer>
@@ -32,7 +29,7 @@ ReactModal.defaultProps = {
   showModal: false,
   title: '',
   body: '',
-  primaryCTA: ''
+  primaryCTA: 'Submit'
 }
 
 export default ReactModal

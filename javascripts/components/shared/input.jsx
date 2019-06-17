@@ -1,29 +1,35 @@
-// import React from 'react'
+import React from 'react'
+import PropTypes from 'prop-types'
+import { Form } from "react-bootstrap"
 
 
-// export default class Input extends React.Component {
-//   constructor(props, context) {
-//     super(props, context)
+export default class Input extends React.Component {
+  constructor(props, context) {
+    super(props, context)
+  }
 
-//     this.onChange = this.onChange.bind(this)
+  render() {
+    return (
+      <Form.Group controlId={this.props.controlId}>
+        <Form.Label>{this.props.title}</Form.Label>
+        <Form.Control
+          value={this.props.value}
+          type={this.props.type}
+          onChange={(e) => {this.props.onChange(e)}} 
+          placeholder={this.props.placeholder} 
+        />
+      </Form.Group>
+    )
+  }
+}
 
-//     this.state = {
-//       data: ''
-//     }
-//   }
+Input.propTypes = {
+  onChange: PropTypes.func,
+  title: PropTypes.string,
+  placeholder: PropTypes.string,
+  type: PropTypes.string
+}
 
-//   onChange(val) {
-//     this.setState({ data: val })
-//   }
-
-//   render() {
-//     return (
-//       <Form.Group controlId="formBasicEmail">
-//         <Form.Label>Email address</Form.Label>
-//         <Form.Control type="email" placeholder="tags..." onChange={this.onChange}>
-//           {this.state.data}
-//         </Form.Control>
-//       </Form.Group>
-//     )
-//   }
-// }
+Input.defaultProps = {
+  type: "text"
+}
