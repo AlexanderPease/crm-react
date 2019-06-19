@@ -1,0 +1,16 @@
+.dashboard {
+  &-screen {
+    margin: 40px 0;  
+  }
+
+  &-actions {
+    margin-bottom: 30px;
+    .btn {
+      margin-right: 30px;
+    }
+  }
+
+  &-table {
+    margin-bottom: 50px;
+  }
+}

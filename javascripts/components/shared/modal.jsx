@@ -4,9 +4,8 @@ import { PageHeader, Modal, Button } from "react-bootstrap"
 
 
 const ReactModal = props => {
-
   return (
-    <Modal show={props.showModal} onHide={props.toggleShowModal}>
+    <Modal show={props.isShowing} onHide={props.toggleShow}>
       <Modal.Header closeButton>
         <Modal.Title>{props.title}</Modal.Title>
       </Modal.Header>
@@ -21,12 +20,12 @@ const ReactModal = props => {
 }
 
 ReactModal.propTypes = {
-  showModal: PropTypes.bool,
-  toggleShowModal: PropTypes.func
+  isShowing: PropTypes.bool,
+  toggleShow: PropTypes.func
 }
 
 ReactModal.defaultProps = {
-  showModal: false,
+  isShowing: false,
   title: '',
   body: '',
   primaryCTA: 'Submit'

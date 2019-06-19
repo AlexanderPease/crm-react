@@ -3,11 +3,19 @@ import { Button } from "react-bootstrap"
 import ReactTable from "react-table"
 import matchSorter, { rankings } from 'match-sorter'
 
-import { paths, apiBaseUrl } from "../lib/constants"
-import Input from "../components/shared/input"
-import BulkEditModal from "../components/dashboard/BulkEditModal"
-import cleanContacts from "../lib/contacts"
-import dateString from "../lib/date"
+import Input from "../../components/shared/input"
+import BulkEditModal from "../../components/dashboard/BulkEditModal"
+import ReactModal from "../../components/shared/modal"
+import dateString from "../../lib/date"
+import { contactGET, contactPUT } from "../../api/contact"
+
+
+const defaultModalProps = {
+  type: '',
+  isShowing: false,
+  inputCompany: '', 
+  inputTags: ''
+}
 
 
 export default class Dashboard extends React.Component {
@@ -15,15 +23,10 @@ export default class Dashboard extends React.Component {
     super(props, context)
 
     this.selectedIds = this.selectedIds.bind(this)
-    this.renderEditable = this.renderEditable.bind(this)
-    this.saveCell = this.saveCell.bind(this)
-    this.showBulkEditModal = this.showBulkEditModal.bind(this)
 
     this.editContacts = this.editContacts.bind(this)
-    this.updateEditState = this.updateEditState.bind(this)
-
-    this.get = this.get.bind(this)
-    this.put = this.put.bind(this)
+    this.updateModalInputs = this.updateModalInputs.bind(this)
+    this.toggleShowModal = this.toggleShowModal.bind(this)
 
     this.toggleRow = this.toggleRow.bind(this)
     this.toggleSelectAll = this.toggleSelectAll.bind(this)
@@ -36,12 +39,12 @@ export default class Dashboard extends React.Component {
       selectAll: 0,
 
       // Edit contacts
-      edits: {
-        company: '',
-        tags: ''
+      modalProps: {
+        numContacts: 0,
+        ...defaultModalProps
       }
     }
-    this.get()
+    contactGET(this)
   }
 
   selectedIds() {
@@ -55,7 +58,7 @@ export default class Dashboard extends React.Component {
   }
 
   /****************************************************/
-  // Row selection
+  // Table
   /****************************************************/
   toggleRow(id) {
     const newSelected = Object.assign({}, this.state.selected)
@@ -82,112 +85,57 @@ export default class Dashboard extends React.Component {
   }
 
   /****************************************************/
+  // Modal
+  /****************************************************/
+
+  // Callback for modal inputs
+  updateModalInputs(e) {
+    let modalProps = { ...this.state.modalProps }
+    const key = 'input' + e.target.id.charAt(0).toUpperCase() + e.target.id.slice(1)
+    modalProps[key] = e.target.value
+    this.setState({ modalProps })
+  }
+
+  // Toggle showing modal
+  toggleShowModal(e) {
+    let modalProps = {...this.state.ModalProps}
+    
+    if (this.state.modalProps.isShowing) {
+      modalProps = defaultModalProps
+    } else {
+      modalProps.isShowing = true
+      modalProps.type = e.target.id
+    }
+
+    this.setState({ modalProps })
+  }
+
+  /****************************************************/
   // Contact API methods
   /****************************************************/
-  get() {
-    fetch(
-      apiBaseUrl + paths.contact,
-      { method: "GET" }
-
-    )
-    .then(resp => {
-      if (resp.status == 200) {
-        return resp.json()
-      } else if (resp.status == 401) {
-        throw new Error('Unauthorized to access.')
-      } else {
-        throw new Error('Failed to access.')
-      }
-    })
-    .then((json) => {
-      return cleanContacts(json)
-    })
-    .then((data) => {
-      this.setState({ data: data })
-    })
-    .catch(function (error) {
-      console.log('Request failed', error);
-    })
-  }
-
-  put(contact_id, data) {
-    fetch(
-      apiBaseUrl + paths.contact + "/" + contact_id,
-      { 
-        method: "PUT",
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-      }
-    )
-    .then(resp => {
-      if (resp.status == 200) {
-        this.get()
-      } else if (resp.status == 401) {
-        throw new Error('Unauthorized to access.')
-      } else {
-        throw new Error('Failed to access.')
-      }
-    })
-    .catch(function (error) {
-      console.log('Request failed', error);
-    })
-  }
 
   // Merge contacts together
   mergeContacts() {
     const ids = this.selectedIds()
     if (ids.length != 2) { return }
     let data = { 'merge': ids[1] }
-    this.put(ids[0], data)
+    contactPUT(this, ids[0], data)
   }
 
-  editContacts(data) {
-
-    console.log('editContacts')
+  // Edit contacts using inputs from modal
+  editContacts() {
+    for (const id of this.selectedIds()) {
+      const inputs = this.state.modalProps
+      let data = {
+        name: inputs.inputName,
+        company: inputs.inputCompany,
+        tags: inputs.inputTags
+      }
+      contactPUT(this, id, data)
+    }
+    this.toggleShowModal()
+    this.setState({ selected: {}, selectAll: 0 })
   }
-
-  saveCell(e) {
-    console.log(e.target.innerHTML)
-  }
-
-  renderEditable(cellInfo) {
-    return (
-      <div
-        style={{ backgroundColor: "#fafafa" }}
-        contentEditable
-        suppressContentEditableWarning
-        onBlur={this.saveCell}
-        dangerouslySetInnerHTML={{
-          __html: this.state.data[cellInfo.index][cellInfo.column.id]
-        }}
-      />
-    )
-  }
-
-  updateEditState(e) {
-    console.log('updateEditState')
-    console.log(e)
-    console.log(e.target.id)
-    console.log(e.target.value)
-    let edits = { ...this.state.edits }
-    edits[e.target.id] = e.target.value
-    console.log(edits)
-    this.setState({ edits: edits })
-  }
-
-  showBulkEditModal() {
-    const bulkEditModal = BulkEditModal({
-      numContacts: this.selectedIds().length,
-      edits: this.state.edits,
-      onChange: this.updateEditState,
-      onClick: this.editContacts // callback to execute
-    })
-    this.props.setModalProps(bulkEditModal)
-    this.props.toggleShowModal()
-  }
-
 
   /****************************************************/
   // Render
@@ -230,7 +178,6 @@ export default class Dashboard extends React.Component {
         Header: 'Name',
         accessor: 'name',
         minWidth: 200,
-        Cell: this.renderEditable,
         filterMethod: (filter, rows) => matchSorter(rows, filter.value, { keys: ["name"] }),
         filterAll: true,
       },
@@ -299,37 +246,55 @@ export default class Dashboard extends React.Component {
       }
     ]
 
+    const modalProps = BulkEditModal({
+      numContacts: this.selectedIds().length,
+      onChange: this.updateModalInputs,
+      toggleShow: this.toggleShowModal,
+      mergeContacts: this.mergeContacts,
+      onClick: this.editContacts,
+      ...this.state.modalProps
+    })
+
+    let editCTA = 'Edit Contact'
+    if (this.props.numContacts > 1) {
+      title = 'Edit ' + props.numContacts + ' Contacts'
+    }
+
     return (
-      <div>
+      <div className="dashboard-screen">
+
         <div className="dashboard-actions">
           <Button
-            id="mergeButton"
+            id="sendEmail"
             variant='primary'
-            disabled={this.selectedIds().length !== 2}
-            onClick={this.mergeContacts}
-          >Merge Contacts</Button>
-
+            disabled={this.selectedIds().length < 1}
+            onClick={this.toggleShowModal}
+          >Send Email</Button>
           <Button
-            id="mergeButton"
-            variant='primary'
-            disabled={this.selectedIds().length <= 1}
-            onClick={this.showBulkEditModal}
-          >Bulk Edit</Button>
+            id="editContacts"
+            variant='secondary'
+            disabled={this.selectedIds().length < 1}
+            onClick={this.toggleShowModal}
+          >Edit Contacts</Button>
         </div>
 
-        <ReactTable
-          data={this.state.data}
-          columns={columns}
-          className="-striped"
-          defaultPageSize={10}
-          filterable
-          defaultSorted={[
-            {
-              id: "name",
-              desc: false
-            }
-          ]}
-        />
+        <div className="dashboard-table">
+          <ReactTable
+            data={this.state.data}
+            columns={columns}
+            className="-striped"
+            defaultPageSize={10}
+            filterable
+            defaultSorted={[
+              {
+                id: "name",
+                desc: false
+              }
+            ]}
+          />
+        </div>
+
+        <ReactModal {...modalProps} />
       </div>
     )
   }
